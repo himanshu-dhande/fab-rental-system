@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Login — Fab Rental Jalgaon</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Jost',sans-serif;background:#eeeae4}
+a{text-decoration:none;color:inherit}
+
+/* FLASH */
+.flash-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.flash{display:flex;justify-content:space-between;align-items:center;padding:13px 18px;font-size:13px;min-width:300px;max-width:460px;box-shadow:0 8px 30px rgba(0,0,0,.1)}
+.flash button{background:none;border:none;cursor:pointer;font-size:18px;margin-left:12px;opacity:.6}
+.flash-success{background:#dcfce7;color:#166534;border-left:4px solid #22a84a}
+.flash-danger{background:#fee2e2;color:#991b1b;border-left:4px solid #e53e3e}
+.flash-warning{background:#fef3c7;color:#92400e;border-left:4px solid #f59e0b}
+
+/* PAGE */
+.page-wrap{display:flex;flex-direction:column;min-height:100vh}
+
+/* FORMS AREA */
+.forms-area{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:60px 24px;
+}
+
+/* FORM BOX */
+.form-box{
+  background:#eeeae4;
+  width:100%;
+  max-width:520px;
+}
+
+/* TITLE */
+.auth-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:46px;
+  font-weight:400;
+  color:#1a1a1a;
+  margin-bottom:36px;
+  letter-spacing:.5px;
+}
+
+/* FORM */
+.fg{margin-bottom:20px}
+.fg label{
+  display:flex;align-items:center;gap:4px;
+  font-size:13px;color:#444;font-weight:500;margin-bottom:8px;
+}
+.req{color:#b03a2e;font-size:15px}
+.fg input{
+  width:100%;padding:14px 16px;
+  border:1px solid #d0cac2;background:#fff;
+  font-size:13px;font-family:'Jost',sans-serif;
+  color:#333;outline:none;transition:border-color .25s;
+}
+.fg input:focus{border-color:#1a1a1a}
+.fg input::placeholder{color:#bdb8b2;font-size:13px}
+
+/* Eye */
+.eye-wrap{position:relative}
+.eye-wrap input{padding-right:46px}
+.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:14px;color:#bbb;padding:0}
+.eye-btn:hover{color:#666}
+
+/* Check row */
+.check-row{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:24px;font-size:13px;color:#666;
+}
+.check-label{display:flex;align-items:center;gap:8px;cursor:pointer}
+.check-label input[type=checkbox]{width:15px;height:15px;accent-color:#1a1a1a;cursor:pointer}
+.lost-pw{font-size:12px;color:#999;text-decoration:underline;transition:color .2s}
+.lost-pw:hover{color:#1a1a1a}
+
+/* Submit */
+.btn-sub{
+  width:100%;padding:16px;background:#1a1a1a;color:#fff;
+  font-size:11px;font-weight:600;letter-spacing:3.5px;text-transform:uppercase;
+  border:none;cursor:pointer;font-family:'Jost',sans-serif;transition:background .3s;
+}
+.btn-sub:hover{background:#333}
+
+/* Admin hint */
+.admin-hint{
+  margin-top:16px;padding:11px 14px;
+  background:#fefaec;border:1px solid #ead89a;
+  font-size:12px;color:#8a6a10;display:flex;align-items:center;gap:6px;
+}
+.admin-hint code{background:#fff;padding:2px 7px;font-size:11px;border:1px solid #e0ce88;font-family:monospace}
+
+/* REGISTER TOGGLE LINK */
+.register-toggle{
+  margin-top:28px;
+  padding-top:28px;
+  border-top:1px solid #d5cfc8;
+  text-align:center;
+}
+.register-toggle p{font-size:14px;color:#777;margin-bottom:12px}
+.btn-toggle-reg{
+  display:inline-block;
+  padding:13px 40px;
+  border:1.5px solid #1a1a1a;
+  background:transparent;
+  color:#1a1a1a;
+  font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;
+  cursor:pointer;font-family:'Jost',sans-serif;transition:all .3s;
+}
+.btn-toggle-reg:hover{background:#1a1a1a;color:#fff}
+
+/* REGISTER SECTION (hidden by default) */
+.register-section{
+  display:none;
+  margin-top:32px;
+  padding-top:32px;
+  border-top:1px solid #d5cfc8;
+}
+.register-section.show{display:block}
+
+.reg-note{font-size:12px;color:#aaa;line-height:1.75;margin:14px 0 20px}
+.reg-note a{color:#666;text-decoration:underline}
+.reg-note a:hover{color:#1a1a1a}
+
+/* Back to login */
+.back-login{
+  margin-top:20px;text-align:center;
+  font-size:13px;color:#888;cursor:pointer;
+}
+.back-login span{color:#1a1a1a;font-weight:600;text-decoration:underline;cursor:pointer}
+.back-login span:hover{opacity:.7}
+
+/* FOOTER */
+.ft{background:#111118;padding:48px 80px 28px}
+.ft-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:28px}
+.fb-logo{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.fb-icon{width:36px;height:36px;border:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:16px}
+.fb-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;letter-spacing:3px}
+.fb-desc{font-size:12px;color:rgba(255,255,255,.38);line-height:1.8}
+.fc h5{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.28);font-weight:600;margin-bottom:14px}
+.fc a{display:block;font-size:12px;color:rgba(255,255,255,.42);margin-bottom:9px;transition:color .2s}
+.fc a:hover{color:#c9a84c}
+.fc a.hi{display:flex;align-items:center;gap:8px}
+.ft-bot{display:flex;justify-content:space-between;align-items:center;padding-top:18px;border-top:1px solid rgba(255,255,255,.06);font-size:11px;color:rgba(255,255,255,.22)}
+.ft-bot a{color:rgba(255,255,255,.22);margin-left:16px;transition:color .2s}
+.ft-bot a:hover{color:rgba(255,255,255,.55)}
+
+@media(max-width:600px){
+  .forms-area{padding:40px 20px}
+  .auth-title{font-size:36px}
+  .ft{padding:40px 24px 24px}
+  .ft-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .ft-bot{flex-direction:column;gap:10px;text-align:center}
+}
+@media(max-width:420px){.ft-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-wrap">
+  {% for cat,msg in messages %}
+  <div class="flash flash-{{ cat }}"><span>{{ msg }}</span><button onclick="this.parentElement.remove()">✕</button></div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<div class="page-wrap">
+
+  <div class="forms-area">
+    <div class="form-box">
+
+      <!-- ══ LOGIN FORM ══ -->
+      <div id="loginSection">
+        <h1 class="auth-title">Login</h1>
+
+        <form method="POST" action="{{ url_for('login') }}">
+          <div class="fg">
+            <label>Email address <span class="req">*</span></label>
+            <input type="email" name="email" placeholder="Enter your email address..." required autocomplete="email"/>
+          </div>
+          <div class="fg">
+            <label>Password <span class="req">*</span></label>
+            <div class="eye-wrap">
+              <input type="password" id="lp" name="password" placeholder="Enter your password..." required/>
+              <button type="button" class="eye-btn" onclick="tg('lp',this)">👁</button>
+            </div>
+          </div>
+          <div class="check-row">
+            <label class="check-label"><input type="checkbox" name="remember"/> Remember me</label>
+            <a href="#" class="lost-pw">Lost your password?</a>
+          </div>
+          <button type="submit" class="btn-sub">Log In</button>
+        </form>
+
+        <div class="admin-hint">🔑 Admin: <code>admin@fab.com</code> / <code>admin123</code></div>
+
+        <!-- Register toggle -->
+        <div class="register-toggle">
+          <p>Don't have an account?</p>
+          <button class="btn-toggle-reg" onclick="showRegister()">Create Account</button>
+        </div>
+      </div>
+
+      <!-- ══ REGISTER FORM (hidden) ══ -->
+      <div class="register-section" id="registerSection">
+        <h1 class="auth-title">Register</h1>
+
+        <form method="POST" action="{{ url_for('register') }}">
+          <div class="fg">
+            <label>Full Name <span class="req">*</span></label>
+            <input type="text" name="name" placeholder="Your full name..." required/>
+          </div>
+          <div class="fg">
+            <label>Email address <span class="req">*</span></label>
+            <input type="email" name="email" placeholder="Enter your email..." required/>
+          </div>
+          <div class="fg">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" placeholder="+91 9529770750"/>
+          </div>
+          <div class="fg">
+            <label>Password <span class="req">*</span></label>
+            <div class="eye-wrap">
+              <input type="password" id="rp" name="password" placeholder="Create a password..." required/>
+              <button type="button" class="eye-btn" onclick="tg('rp',this)">👁</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>Confirm Password <span class="req">*</span></label>
+            <div class="eye-wrap">
+              <input type="password" id="rc" name="confirm" placeholder="Re-enter password..." required/>
+              <button type="button" class="eye-btn" onclick="tg('rc',this)">👁</button>
+            </div>
+          </div>
+          <p class="reg-note">Your data will be used to manage your bookings. See our <a href="#">privacy policy</a>.</p>
+          <button type="submit" class="btn-sub">Register</button>
+        </form>
+
+        <div class="back-login">
+          Already have an account? <span onclick="showLogin()">Login here</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="ft">
+    <div class="ft-grid">
+      <div>
+        <div class="fb-logo"><div class="fb-icon">👗</div><span class="fb-name">FAB RENTAL</span></div>
+        <p class="fb-desc">Jalgaon's premier luxury designer wear on rent. Premium Sarees, Sherwanis &amp; Lehengas for every occasion.</p>
+      </div>
+      <div class="fc">
+        <h5>Collection</h5>
+        <a href="/dashboard?category=Women">Womens Wear</a>
+        <a href="/dashboard?category=Men">Mens Wear</a>
+        <a href="/dashboard?occasion=Wedding">Wedding</a>
+        <a href="/dashboard?occasion=Sangeet">Sangeet</a>
+      </div>
+      <div class="fc">
+        <h5>Information</h5>
+        <a href="#">About Us</a>
+        <a href="#">Cancellation Policy</a>
+        <a href="#">Return Policy</a>
+        <a href="#">T&amp;C</a>
+      </div>
+      <div class="fc">
+        <h5>Contact</h5>
+        <a href="tel:+919529770750" class="hi">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          +91 9529770750
+        </a>
+        <a href="https://www.instagram.com/strvlight_.2005" target="_blank" class="hi">
+          <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          @strvlight_.2005
+        </a>
+        <a href="https://wa.me/919529770750" target="_blank" class="hi">
+          <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp Us
+        </a>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <span>© 2026 Fab Rental Jalgaon. All rights reserved.</span>
+      <div><a href="#">Privacy</a><a href="#">T&amp;C</a><a href="#">Cookies</a></div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+function tg(id,btn){
+  const i=document.getElementById(id);
+  i.type=i.type==='password'?'text':'password';
+  btn.textContent=i.type==='password'?'👁':'🙈';
+}
+
+function showRegister(){
+  document.getElementById('loginSection').style.display='none';
+  const reg=document.getElementById('registerSection');
+  reg.classList.add('show');
+  reg.style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function showLogin(){
+  document.getElementById('registerSection').classList.remove('show');
+  document.getElementById('registerSection').style.display='none';
+  document.getElementById('loginSection').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// If register error came from server, show register form
+{% if request.endpoint == 'register' %}
+showRegister();
+{% endif %}
+
+// Auto dismiss flash
+setTimeout(()=>{
+  document.querySelectorAll('.flash').forEach(el=>{
+    el.style.transition='opacity .5s,transform .5s';
+    el.style.opacity='0';
+    el.style.transform='translateX(20px)';
+    setTimeout(()=>el.remove(),500);
+  });
+},4000);
+</script>
+</body>
+</html>

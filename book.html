@@ -1,0 +1,734 @@
+{% extends 'base.html' %}
+{% block title %}{{ cloth.title }} — Fab Rental Jalgaon{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ════════════════════════════════
+   BREADCRUMB
+════════════════════════════════ */
+.bc-bar {
+  padding: 14px 60px;
+  background: #fafaf8;
+  border-bottom: 1px solid #ede8e0;
+  font-size: 12px;
+  color: #bbb;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bc-bar a { color: #bbb; transition: color .2s; }
+.bc-bar a:hover { color: #1a1a1a; }
+.bc-bar span { color: #555; font-weight: 500; }
+
+/* ════════════════════════════════
+   MAIN PRODUCT LAYOUT
+════════════════════════════════ */
+.prod-wrap {
+  display: grid;
+  grid-template-columns: 55% 45%;
+  min-height: 85vh;
+  background: #fff;
+}
+
+/* ════════════════════════════════
+   LEFT — STICKY IMAGE GALLERY
+════════════════════════════════ */
+.gallery-side {
+  position: sticky;
+  top: 72px;
+  align-self: start;
+  height: calc(100vh - 72px);
+  display: flex;
+  gap: 12px;
+  padding: 24px 16px 24px 60px;
+  background: #f9f7f4;
+}
+
+/* Thumbnail column */
+.thumb-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 72px;
+  flex-shrink: 0;
+}
+.thumb-item {
+  width: 72px;
+  height: 86px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color .2s;
+  background: #ede8e0;
+  flex-shrink: 0;
+}
+.thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+.thumb-item.active { border-color: #1a1a1a; }
+.thumb-item:hover { border-color: #aaa; }
+
+/* Main image */
+.main-img-box {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #ede8e0;
+}
+.main-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  transition: transform .5s ease;
+}
+.main-img-box:hover img { transform: scale(1.03); }
+
+/* Nav arrows */
+.img-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.88);
+  border: none;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 20px;
+  color: #1a1a1a;
+  z-index: 2;
+  transition: all .2s;
+  backdrop-filter: blur(4px);
+}
+.img-arrow:hover { background: #1a1a1a; color: #fff; }
+.img-prev { left: 14px; }
+.img-next { right: 14px; }
+
+/* Occasion tag overlay */
+.img-occ-tag {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(255,255,255,.92);
+  color: #1a1a1a;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  z-index: 2;
+}
+
+/* ════════════════════════════════
+   RIGHT — PRODUCT INFO & BOOKING
+════════════════════════════════ */
+.info-side {
+  padding: 36px 60px 60px 40px;
+  border-left: 1px solid #f0ece6;
+  overflow-y: auto;
+}
+
+/* Top meta */
+.prod-type-link {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #c9a84c;
+  font-weight: 600;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 10px;
+  transition: opacity .2s;
+}
+.prod-type-link:hover { opacity: .7; }
+
+.prod-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(24px, 2.5vw, 38px);
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.15;
+  margin-bottom: 6px;
+}
+
+.prod-subline {
+  font-size: 12px;
+  color: #aaa;
+  letter-spacing: 1px;
+  margin-bottom: 22px;
+}
+
+/* Divider */
+.hline { border: none; border-top: 1px solid #f0ece6; margin: 20px 0; }
+
+/* ── PRICE BLOCK ── */
+.price-block { margin-bottom: 22px; }
+.price-rent {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.price-label { font-size: 12px; color: #888; letter-spacing: .5px; }
+.price-amount {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -.5px;
+}
+.price-per { font-size: 13px; color: #aaa; font-weight: 400; }
+.price-deposit { font-size: 13px; color: #888; }
+.price-deposit strong { color: #555; }
+.price-deposit .refund-tag {
+  font-size: 10px;
+  background: #dcfce7;
+  color: #166534;
+  padding: 2px 8px;
+  letter-spacing: .5px;
+  margin-left: 6px;
+}
+
+/* ── SELECTORS ROW ── */
+.sel-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.sel-group label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #888;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.sel-group select {
+  width: 100%;
+  padding: 13px 36px 13px 14px;
+  border: 1px solid #d5cdc3;
+  font-size: 13px;
+  font-family: 'Jost', sans-serif;
+  color: #333;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  transition: border-color .25s;
+}
+.sel-group select:focus { border-color: #1a1a1a; }
+
+/* ── DATE PICKER ── */
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.date-group label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #888;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.date-group input[type=date] {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #d5cdc3;
+  font-size: 13px;
+  font-family: 'Jost', sans-serif;
+  color: #333;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color .25s;
+}
+.date-group input[type=date]:focus { border-color: #1a1a1a; }
+.return-display {
+  padding: 13px 14px;
+  border: 1px solid #ede8e0;
+  background: #f9f7f4;
+  font-size: 13px;
+  color: #555;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+}
+.return-display.filled { color: #1a1a1a; font-weight: 500; }
+
+/* ── PRICE SUMMARY BOX ── */
+.price-box {
+  background: #f9f6f1;
+  border: 1px solid #ede8e0;
+  border-left: 3px solid #c9a84c;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  display: none;
+}
+.price-box.show { display: block; }
+.pbox-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #777;
+  padding: 5px 0;
+}
+.pbox-row.total {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a1a1a;
+  border-top: 1px solid #e0dbd4;
+  margin-top: 8px;
+  padding-top: 12px;
+}
+.pbox-free {
+  font-size: 11px;
+  color: #22a84a;
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+
+/* ── CTA BUTTONS ── */
+.btn-confirm {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  background: #111118;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  transition: background .3s;
+  margin-bottom: 12px;
+}
+.btn-confirm:hover { background: #2a2a40; }
+
+.btn-wa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  background: #25d366;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  font-family: 'Jost', sans-serif;
+  transition: background .3s;
+  text-decoration: none;
+}
+.btn-wa:hover { background: #1da851; }
+
+/* Trust badges */
+.trust-row {
+  display: flex;
+  gap: 20px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #888;
+  letter-spacing: .3px;
+}
+.trust-item svg { color: #c9a84c; }
+
+/* ── DESCRIPTION SECTION ── */
+.desc-section { margin-top: 28px; }
+.desc-tabs {
+  display: flex;
+  border-bottom: 1px solid #f0ece6;
+  margin-bottom: 20px;
+}
+.dtab {
+  padding: 10px 0;
+  margin-right: 32px;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #aaa;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: 'Jost', sans-serif;
+  font-weight: 600;
+}
+.dtab.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+.dtab:hover { color: #555; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+.tab-content p {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.95;
+}
+
+/* Size chart table */
+.size-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.size-table th {
+  background: #f9f6f1;
+  padding: 10px 14px;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #888;
+  font-weight: 600;
+  border: 1px solid #ede8e0;
+}
+.size-table td {
+  padding: 10px 14px;
+  text-align: center;
+  border: 1px solid #ede8e0;
+  color: #555;
+}
+.size-table tr:hover td { background: #faf8f5; }
+
+/* Stylist note */
+.stylist-box {
+  background: #f9f6f1;
+  border-left: 3px solid #c9a84c;
+  padding: 16px 20px;
+  margin-top: 16px;
+}
+.stylist-box h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+.stylist-box p { font-size: 13px; color: #888; line-height: 1.8; }
+
+/* ════════════════════════════════
+   RESPONSIVE
+════════════════════════════════ */
+@media (max-width: 960px) {
+  .prod-wrap { grid-template-columns: 1fr; }
+  .gallery-side {
+    position: static;
+    height: auto;
+    padding: 20px;
+    min-height: 400px;
+  }
+  .thumb-col { display: none; }
+  .info-side { padding: 24px 20px 60px; border-left: none; border-top: 1px solid #f0ece6; }
+  .sel-row, .date-row { grid-template-columns: 1fr; }
+  .bc-bar { padding: 12px 20px; }
+}
+@media (max-width: 480px) {
+  .trust-row { gap: 12px; }
+  .desc-tabs { gap: 0; }
+  .dtab { margin-right: 20px; font-size: 10px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- BREADCRUMB -->
+<div class="bc-bar">
+  <a href="{{ url_for('home') }}">Home</a> ›
+  <a href="{{ url_for('dashboard', category=cloth.category) }}">{{ cloth.category }}s Wear</a> ›
+  <a href="{{ url_for('dashboard', type=cloth.cloth_type) }}">{{ cloth.cloth_type }}</a> ›
+  <span>{{ cloth.title[:45] }}{% if cloth.title|length > 45 %}…{% endif %}</span>
+</div>
+
+<!-- MAIN PRODUCT PAGE -->
+<div class="prod-wrap">
+
+  <!-- ════ LEFT: GALLERY ════ -->
+   
+  <div class="gallery-side">
+    <!-- Thumbnails -->
+    <div class="thumb-col">
+      <div class="thumb-item active" onclick="setThumb(0, this)">
+        <img src="{{ cloth.image }}" alt="{{ cloth.title }}"/>
+      </div>
+      <div class="thumb-item" onclick="setThumb(1, this)">
+        <img src="{{ cloth.image }}" alt="{{ cloth.title }}" style="filter:brightness(.9) saturate(1.05)"/>
+      </div>
+      <div class="thumb-item" onclick="setThumb(2, this)">
+        <img src="{{ cloth.image }}" alt="{{ cloth.title }}" style="filter:brightness(.8) contrast(1.05)"/>
+      </div>
+    </div>
+
+    <!-- Main image -->
+    <div class="main-img-box">
+      <img id="mainImg" src="{{ cloth.image }}" alt="{{ cloth.title }}"
+           onerror="this.src='https://images.pexels.com/photos/8969237/pexels-photo-8969237.jpeg?auto=compress&cs=tinysrgb&w=800'"/>
+      <span class="img-occ-tag">{{ cloth.occasion }}</span>
+      <button class="img-arrow img-prev" onclick="prevImg()">&#8249;</button>
+      <button class="img-arrow img-next" onclick="nextImg()">&#8250;</button>
+    </div>
+  </div>
+
+  <!-- ════ RIGHT: INFO & BOOKING ════ -->
+  <div class="info-side">
+
+    <a href="{{ url_for('dashboard', type=cloth.cloth_type) }}" class="prod-type-link">
+      {{ cloth.cloth_type }} Collection
+    </a>
+
+    <h1 class="prod-title">{{ cloth.title }}</h1>
+    <p class="prod-subline">{{ cloth.category }} Wear &nbsp;·&nbsp; Size {{ cloth.size }}</p>
+
+    <hr class="hline"/>
+
+    <!-- PRICE -->
+    <div class="price-block">
+      <div class="price-rent">
+        <span class="price-label">Rent:</span>
+        <span class="price-amount">₹{{ cloth.price_per_day|int }}</span>
+        <span class="price-per">/ day</span>
+      </div>
+      <div class="price-deposit">
+        Refundable Deposit: <strong>₹{{ (cloth.price_per_day * 2)|int }}</strong>
+        <span class="refund-tag">100% REFUNDABLE</span>
+      </div>
+    </div>
+
+    <hr class="hline"/>
+
+    <!-- BOOKING FORM -->
+    <form method="POST" action="{{ url_for('book', cloth_id=cloth.id) }}" id="bookForm">
+      <input type="hidden" name="days" id="hidDays" value="4"/>
+
+      <!-- Duration + Size -->
+      <div class="sel-row">
+        <div class="sel-group">
+          <label>Rental Duration</label>
+          <select id="durSel" onchange="recalc()">
+            <option value="1">1 Day</option>
+            <option value="2">2 Days</option>
+            <option value="3">3 Days</option>
+            <option value="4" selected>4 Days</option>
+            <option value="5">5 Days</option>
+            <option value="7">7 Days</option>
+            <option value="10">10 Days</option>
+            <option value="14">14 Days</option>
+            <option value="30">30 Days</option>
+          </select>
+        </div>
+        <div class="sel-group">
+          <label>Size</label>
+          <select id="sizeSel">
+            {% for s in ['XS','S','M','L','XL','XXL','Free'] %}
+            <option {{ 'selected' if cloth.size == s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="date-row">
+        <div class="date-group">
+          <label>Start Date</label>
+          <input type="date" id="startDate" name="start_date"
+                 min="{{ now.strftime('%Y-%m-%d') }}"
+                 onchange="recalc()"/>
+        </div>
+        <div class="date-group">
+          <label>Return Date</label>
+          <div class="return-display" id="returnDisplay">
+            Select start date...
+          </div>
+        </div>
+      </div>
+
+      <!-- Price summary (shows after date selected) -->
+      <div class="price-box" id="priceBox">
+        <div class="pbox-row">
+          <span>Rental (₹{{ cloth.price_per_day|int }} × <span id="boxDays">4</span> days)</span>
+          <span id="boxRent">₹{{ (cloth.price_per_day * 4)|int }}</span>
+        </div>
+        <div class="pbox-row">
+          <span>Delivery</span>
+          <span class="pbox-free">FREE</span>
+        </div>
+        <div class="pbox-row">
+          <span>Refundable Deposit</span>
+          <span>₹{{ (cloth.price_per_day * 2)|int }}</span>
+        </div>
+        <div class="pbox-row total">
+          <span>Total Payable</span>
+          <span id="boxTotal">₹{{ (cloth.price_per_day * 6)|int }}</span>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <button type="submit" class="btn-confirm">
+        Confirm Booking →
+      </button>
+    </form>
+
+    <a href="https://wa.me/919529770750?text=Hi!%20I%20want%20to%20rent%20{{ cloth.title|urlencode }}%20from%20Fab%20Rental%20Jalgaon."
+       target="_blank" class="btn-wa">
+      <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Enquire on WhatsApp
+    </a>
+
+    <!-- Trust badges -->
+    <div class="trust-row">
+      <div class="trust-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+        Free Delivery
+      </div>
+      <div class="trust-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+        Free Pickup
+      </div>
+      <div class="trust-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+        100% Refundable Deposit
+      </div>
+      <div class="trust-item">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>
+        Dry Cleaned & Sanitised
+      </div>
+    </div>
+
+    <hr class="hline" style="margin-top:24px"/>
+
+    <!-- DESCRIPTION TABS -->
+    <div class="desc-section">
+      <div class="desc-tabs">
+        <button class="dtab active" onclick="showTab('desc', this)">Description</button>
+        <button class="dtab" onclick="showTab('stylist', this)">Stylist's Notes</button>
+        <button class="dtab" onclick="showTab('size', this)">Size Chart</button>
+      </div>
+
+      <!-- Description -->
+      <div class="tab-content active" id="tab-desc">
+        <p>{{ cloth.description or 'A luxurious designer piece from our exclusive collection. Perfect for your special occasion in Jalgaon.' }}</p>
+      </div>
+
+      <!-- Stylist Notes -->
+      <div class="tab-content" id="tab-stylist">
+        <div class="stylist-box">
+          <h4>Stylist's Notes</h4>
+          <p>Pair this stunning {{ cloth.cloth_type }} with statement jewellery and matching heels to complete your look. Our styling team is available on WhatsApp (+91 9529770750) to assist you with the perfect accessories and styling guidance for your {{ cloth.occasion }} look.</p>
+        </div>
+      </div>
+
+      <!-- Size Chart -->
+      <div class="tab-content" id="tab-size">
+        <table class="size-table">
+          <tr>
+            <th>Size</th>
+            <th>Bust (in)</th>
+            <th>Waist (in)</th>
+            <th>Hip (in)</th>
+            <th>Length (in)</th>
+          </tr>
+          <tr><td>XS</td><td>32</td><td>26</td><td>36</td><td>58</td></tr>
+          <tr><td>S</td><td>34</td><td>28</td><td>38</td><td>59</td></tr>
+          <tr><td>M</td><td>36</td><td>30</td><td>40</td><td>60</td></tr>
+          <tr><td>L</td><td>38</td><td>32</td><td>42</td><td>60</td></tr>
+          <tr><td>XL</td><td>40</td><td>34</td><td>44</td><td>61</td></tr>
+          <tr><td>XXL</td><td>42</td><td>36</td><td>46</td><td>61</td></tr>
+        </table>
+        <p style="font-size:11px;color:#aaa;margin-top:12px;">*All measurements are approximate. For best fit, please WhatsApp us your measurements.</p>
+      </div>
+    </div>
+
+  </div><!-- end info-side -->
+</div><!-- end prod-wrap -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const PPD = {{ cloth.price_per_day }};
+const DEP = {{ (cloth.price_per_day * 2)|int }};
+
+// ── Image gallery ──
+let cur = 0;
+const thumbs = document.querySelectorAll('.thumb-item');
+
+function setThumb(n, el) {
+  cur = n;
+  const imgs = document.querySelectorAll('.thumb-item img');
+  document.getElementById('mainImg').src = imgs[n].src;
+  thumbs.forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+function nextImg() { setThumb((cur+1)%3, thumbs[(cur+1)%3]); }
+function prevImg() { setThumb((cur-1+3)%3, thumbs[(cur-1+3)%3]); }
+
+// ── Price recalculate ──
+function recalc() {
+  const days = parseInt(document.getElementById('durSel').value);
+  const startVal = document.getElementById('startDate').value;
+
+  document.getElementById('hidDays').value = days;
+
+  const rent  = Math.round(PPD * days);
+  const total = rent + DEP;
+
+  document.getElementById('boxDays').textContent  = days;
+  document.getElementById('boxRent').textContent  = '₹' + rent.toLocaleString('en-IN');
+  document.getElementById('boxTotal').textContent = '₹' + total.toLocaleString('en-IN');
+
+  if (startVal) {
+    // Calculate return date
+    const start  = new Date(startVal);
+    const ret    = new Date(start);
+    ret.setDate(ret.getDate() + days);
+    const opts   = { day: 'numeric', month: 'long', year: 'numeric' };
+    const retStr = ret.toLocaleDateString('en-IN', opts);
+
+    const disp = document.getElementById('returnDisplay');
+    disp.textContent = retStr;
+    disp.classList.add('filled');
+
+    // Show price box
+    document.getElementById('priceBox').classList.add('show');
+  }
+}
+
+// ── Description Tabs ──
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.dtab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// Set today as min date
+document.getElementById('startDate').min = new Date().toISOString().split('T')[0];
+</script>
+{% endblock %}

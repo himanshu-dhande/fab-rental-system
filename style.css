@@ -1,0 +1,5 @@
+.pcta-row{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:12px}
+.btn-cart{padding:10px 14px;background:#c9a84c;color:#fff;border:none;cursor:pointer;
+  font-family:'Jost',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;
+  text-transform:uppercase;transition:background .3s}
+.btn-cart:hover{background:#b8963a}

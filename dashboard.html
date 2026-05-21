@@ -1,0 +1,659 @@
+{% extends 'base.html' %}
+{% block title %}{% if category=='Women' %}Womens Wear{% elif category=='Men' %}Mens Wear{% else %}All Collection{% endif %} — Fab Rental Jalgaon{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ══════════════════════════════════════
+   HERO BANNER
+══════════════════════════════════════ */
+.cat-hero{position:relative;width:100%;height:320px;overflow:hidden;background:#111}
+.cat-hero img{width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:brightness(.65);transition:transform 8s ease-out}
+.cat-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.65) 0%,transparent 60%)}
+.cat-hero-title{position:absolute;bottom:36px;left:48px;color:#fff;font-family:'Cormorant Garamond',serif;font-size:clamp(28px,4.5vw,56px);font-weight:700;font-style:italic;z-index:2;animation:su .9s ease forwards;opacity:0;animation-delay:.2s}
+@keyframes su{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.cat-hero-sub{position:absolute;bottom:16px;left:50px;color:rgba(255,255,255,.6);font-size:12px;letter-spacing:2px;text-transform:uppercase;z-index:2;animation:su .9s ease forwards;opacity:0;animation-delay:.45s}
+
+/* ══════════════════════════════════════
+   PAGE LAYOUT — sidebar + main
+══════════════════════════════════════ */
+.shop-layout{display:grid;grid-template-columns:272px 1fr;gap:0;min-height:80vh;background:#f7f4f0}
+@media(max-width:900px){.shop-layout{grid-template-columns:1fr}}
+
+/* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+.sidebar{background:#fff;border-right:1px solid #ede8e0;padding:0;position:sticky;top:72px;height:calc(100vh - 72px);overflow-y:auto;flex-shrink:0}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-track{background:#f5f0eb}
+.sidebar::-webkit-scrollbar-thumb{background:#d8d0c6;border-radius:2px}
+@media(max-width:900px){.sidebar{display:none;position:fixed;top:0;left:0;bottom:0;width:290px;z-index:800;box-shadow:6px 0 30px rgba(0,0,0,.15);height:100vh;top:0}}
+.sidebar.mobile-open{display:block!important}
+
+/* Sidebar header */
+.sb-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:2px solid #1a1a1a;background:#1a1a1a;position:sticky;top:0;z-index:2}
+.sb-head h4{color:#fff;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase}
+.sb-clear{color:#c9a84c;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:none;font-weight:600;background:none;border:none;font-family:'Jost',sans-serif;cursor:pointer}
+.sb-clear:hover{text-decoration:underline}
+
+/* Filter section */
+.sb-section{border-bottom:1px solid #f0ece6}
+.sb-section-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;cursor:pointer;user-select:none;transition:background .2s}
+.sb-section-head:hover{background:#faf7f4}
+.sb-section-head h5{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1a1a1a}
+.sb-chevron{font-size:10px;color:#aaa;transition:transform .25s}
+.sb-section.collapsed .sb-chevron{transform:rotate(-90deg)}
+.sb-body{padding:8px 20px 14px;display:flex;flex-direction:column;gap:2px}
+.sb-section.collapsed .sb-body{display:none}
+
+/* Filter items — Flipkart style checkboxes */
+.fitem{display:flex;align-items:center;gap:10px;padding:7px 4px;cursor:pointer;transition:background .15s;border-radius:3px}
+.fitem:hover{background:#f5f0eb}
+.fitem input[type=checkbox]{display:none}
+.fcheck{width:16px;height:16px;border:1.5px solid #ccc;border-radius:2px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.fitem.active .fcheck{background:#1a1a1a;border-color:#1a1a1a}
+.fitem.active .fcheck::after{content:'✓';color:#fff;font-size:9px;font-weight:700}
+.fitem-label{font-size:13px;color:#444;flex:1}
+.fitem-count{font-size:10px;color:#aaa;font-weight:500}
+
+/* Price chips */
+.price-chips{display:flex;flex-direction:column;gap:4px;padding:8px 20px 14px}
+.pchip{padding:8px 12px;border:1px solid #e0dbd4;font-size:11px;letter-spacing:.5px;color:#555;cursor:pointer;transition:all .25s;background:#fff;border-radius:2px;text-align:left}
+.pchip:hover{border-color:#1a1a1a;color:#1a1a1a}
+.pchip.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+
+/* Search in sidebar */
+.sb-search{padding:12px 20px;border-bottom:1px solid #f0ece6}
+.sb-search-box{display:flex;align-items:center;gap:8px;border:1px solid #e0dbd4;padding:9px 12px;background:#faf7f4;transition:border .2s}
+.sb-search-box:focus-within{border-color:#1a1a1a}
+.sb-search-box svg{flex-shrink:0;color:#bbb}
+.sb-search-box input{border:none;outline:none;font-size:12px;font-family:'Jost',sans-serif;color:#333;background:transparent;width:100%}
+.sb-search-box input::placeholder{color:#ccc}
+
+/* Active filter tags in sidebar */
+.sb-active-tags{padding:10px 20px;border-bottom:1px solid #f0ece6;display:flex;flex-wrap:wrap;gap:6px}
+.sb-atag{display:inline-flex;align-items:center;gap:5px;background:#1a1a1a;color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 9px}
+.sb-atag button{background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:11px;padding:0;line-height:1}
+.sb-atag button:hover{color:#fff}
+
+/* Mobile sidebar overlay */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:799}
+.sb-overlay.show{display:block}
+
+/* ══════════════════════════════════════
+   MAIN AREA
+══════════════════════════════════════ */
+.main-area{display:flex;flex-direction:column;min-width:0}
+
+/* Top bar */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:#fff;border-bottom:1px solid #ede8e0;flex-wrap:wrap;gap:10px;position:sticky;top:72px;z-index:99}
+.top-bar-left{display:flex;align-items:center;gap:14px}
+.result-count{font-size:13px;color:#555}
+.result-count strong{color:#1a1a1a;font-weight:700}
+.btn-filter-toggle{display:none;align-items:center;gap:7px;padding:9px 16px;border:1px solid #1a1a1a;background:#fff;font-size:11px;font-family:'Jost',sans-serif;letter-spacing:1.5px;color:#1a1a1a;cursor:pointer;text-transform:uppercase;transition:all .3s}
+.btn-filter-toggle:hover{background:#1a1a1a;color:#fff}
+@media(max-width:900px){.btn-filter-toggle{display:flex}}
+.active-tags-bar{display:flex;gap:7px;flex-wrap:wrap}
+.atag{display:inline-flex;align-items:center;gap:5px;background:#f0ece6;color:#555;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 10px}
+.atag button{background:none;border:none;color:#aaa;cursor:pointer;font-size:12px;padding:0;line-height:1}
+.atag button:hover{color:#1a1a1a}
+.sort-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:#888;flex-shrink:0}
+.sort-sel{padding:9px 30px 9px 12px;border:1px solid #e0dbd4;font-size:12px;font-family:'Jost',sans-serif;color:#333;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E") no-repeat right 10px center;outline:none;cursor:pointer;appearance:none}
+
+/* ══════════════════════════════════════
+   PRODUCT GRID
+══════════════════════════════════════ */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);background:#f7f4f0;gap:1px}
+@media(max-width:1200px){.pgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.pgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:380px){.pgrid{grid-template-columns:1fr}}
+
+/* ── Product Card ── */
+.pcard{background:#fff;position:relative;transition:box-shadow .3s;display:flex;flex-direction:column}
+.pcard:hover{box-shadow:0 8px 40px rgba(0,0,0,.1);z-index:2}
+
+/* Card image */
+.pcard-img{position:relative;overflow:hidden;background:#f5f2ee;aspect-ratio:3/4;flex-shrink:0}
+.pcard-img img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:transform .7s cubic-bezier(.25,.46,.45,.94)}
+.pcard:hover .pcard-img img{transform:scale(1.05)}
+.ptag{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);color:#1a1a1a;font-size:8px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;z-index:3}
+
+/* ── HEART / WISHLIST BUTTON ── */
+.btn-heart{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:all .25s;backdrop-filter:blur(4px)}
+.btn-heart:hover{background:#fff;transform:scale(1.1)}
+.btn-heart svg{transition:all .25s}
+.btn-heart.liked svg{fill:#e53e3e;stroke:#e53e3e}
+.btn-heart:hover svg{stroke:#e53e3e}
+
+/* ── 3-DOT MENU ── */
+.btn-dots{position:absolute;top:10px;right:52px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.9);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:all .25s;backdrop-filter:blur(4px);opacity:0}
+.pcard:hover .btn-dots,.btn-dots:focus{opacity:1}
+.btn-dots:hover{background:#fff;transform:scale(1.1)}
+.btn-dots-icon{display:flex;flex-direction:column;gap:3px;align-items:center;pointer-events:none}
+.btn-dots-icon span{width:3.5px;height:3.5px;border-radius:50%;background:#444;display:block}
+
+/* Dropdown from 3-dot */
+.dot-menu{position:absolute;top:50px;right:10px;width:190px;background:#fff;border:1px solid #e8e2d9;box-shadow:0 8px 32px rgba(0,0,0,.14);z-index:20;display:none;flex-direction:column;overflow:hidden}
+.dot-menu.open{display:flex}
+.dot-item{display:flex;align-items:center;gap:11px;padding:11px 16px;font-size:12px;color:#333;cursor:pointer;transition:background .15s;text-decoration:none;border:none;background:none;width:100%;font-family:'Jost',sans-serif;text-align:left}
+.dot-item:hover{background:#f5f0eb;color:#1a1a1a}
+.dot-item em{font-size:15px;font-style:normal;width:18px;text-align:center}
+.dot-item.danger{color:#e53e3e}
+.dot-item.danger:hover{background:#fff5f5}
+.dot-divider{height:1px;background:#f0ece6;margin:2px 0}
+
+/* Quick add overlay on hover */
+.pcard-quick{position:absolute;bottom:0;left:0;right:0;transform:translateY(100%);background:rgba(26,26,26,.92);transition:transform .35s cubic-bezier(.25,.46,.45,.94);z-index:4;display:flex;gap:0}
+.pcard:hover .pcard-quick{transform:translateY(0)}
+.btn-quick{flex:1;padding:12px 6px;color:#fff;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;text-align:center;transition:background .2s;border:none;cursor:pointer;font-family:'Jost',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;background:transparent}
+.btn-quick:hover{background:rgba(255,255,255,.12)}
+.btn-quick.cart{border-right:1px solid rgba(255,255,255,.15)}
+.btn-quick.cart:hover{background:#c9a84c;color:#1a1a1a}
+
+/* Card info */
+.pinfo{padding:14px 16px 16px;display:flex;flex-direction:column;flex:1}
+.ptype{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:#c9a84c;margin-bottom:4px;font-weight:700}
+.pname{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:#1a1a1a;line-height:1.2;margin-bottom:auto}
+.prow{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.pprice{font-size:15px;font-weight:700;color:#1a1a1a}
+.pprice sub{font-size:10px;color:#aaa;font-weight:400}
+.psize{font-size:8px;letter-spacing:1px;text-transform:uppercase;color:#aaa;border:1px solid #eee;padding:3px 8px}
+
+/* Add to cart btn on card */
+.btn-addcart{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:#f5f0eb;color:#1a1a1a;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;width:100%;margin-top:10px;font-family:'Jost',sans-serif;transition:all .3s;position:relative;overflow:hidden}
+.btn-addcart:hover{background:#1a1a1a;color:#fff}
+.btn-addcart.added{background:#22a84a;color:#fff}
+.btn-addcart svg{flex-shrink:0}
+
+/* Empty state */
+.empty-st{grid-column:1/-1;text-align:center;padding:80px 20px;background:#fff}
+.empty-st h3{font-family:'Cormorant Garamond',serif;font-size:36px;color:#aaa;margin-bottom:10px}
+.empty-st p{color:#ccc;font-size:13px;margin-bottom:24px}
+.empty-st a{display:inline-block;padding:13px 32px;background:#1a1a1a;color:#fff;font-size:11px;letter-spacing:2px;text-transform:uppercase;text-decoration:none}
+
+/* Wishlist toast */
+.wl-toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:#fff;padding:10px 22px;font-size:12px;letter-spacing:.5px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.wl-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media(max-width:768px){
+  .cat-hero{height:220px}
+  .cat-hero-title{left:24px;bottom:22px}
+  .top-bar{padding:12px 16px;top:0;position:relative}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO BANNER -->
+<div class="cat-hero">
+  {% if category=='Women' %}
+    <img src="https://cdn.corenexis.com/files/c/6493719720.jpg" alt="Women's Collection" loading="eager"/>
+  {% elif category=='Men' %}
+    <img src="https://cdn.corenexis.com/files/c/1661914720.jpg" alt="Men's Collection" loading="eager"/>
+  {% else %}
+    <img src="https://images.unsplash.com/photo-1583391733981-8498408ee4b7?w=1400&q=90" alt="All Collection" loading="eager"/>
+  {% endif %}
+  <div class="cat-hero-overlay"></div>
+  <h1 class="cat-hero-title">
+    {% if category=='Women' %}Women's Edit{% elif category=='Men' %}Men's Edit{% else %}All Collection{% endif %}
+  </h1>
+  <span class="cat-hero-sub">{{ total }} styles available</span>
+</div>
+
+<!-- MOBILE SIDEBAR OVERLAY -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeSidebar()"></div>
+
+<!-- MAIN SHOP LAYOUT -->
+<div class="shop-layout">
+
+  <!-- ══════════════════ SIDEBAR ══════════════════ -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sb-head">
+      <h4>⊞ Filters</h4>
+      <button class="sb-clear" onclick="clearAllFilters()">Clear All</button>
+    </div>
+
+    <!-- Active filter tags -->
+    {% if category!='all' or occasion!='all' or cloth_type!='all' or search %}
+    <div class="sb-active-tags">
+      {% if category!='all' %}<span class="sb-atag">{{ category }}<button onclick="removeFilter('category')">×</button></span>{% endif %}
+      {% if occasion!='all' %}<span class="sb-atag">{{ occasion }}<button onclick="removeFilter('occasion')">×</button></span>{% endif %}
+      {% if cloth_type!='all' %}<span class="sb-atag">{{ cloth_type }}<button onclick="removeFilter('type')">×</button></span>{% endif %}
+      {% if search %}<span class="sb-atag">{{ search }}<button onclick="removeFilter('search')">×</button></span>{% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Search -->
+    <div class="sb-search">
+      <form method="GET" action="{{ url_for('dashboard') }}" id="searchForm">
+        <input type="hidden" name="category" value="{{ category }}"/>
+        <input type="hidden" name="occasion" value="{{ occasion }}"/>
+        <input type="hidden" name="type" value="{{ cloth_type }}"/>
+        <input type="hidden" name="sort" value="{{ sort }}"/>
+        <div class="sb-search-box">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" name="search" placeholder="Search outfits…" value="{{ search }}"
+                 onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('searchForm').submit()}"/>
+        </div>
+      </form>
+    </div>
+
+    <!-- CATEGORY -->
+    <div class="sb-section" id="sec-category">
+      <div class="sb-section-head" onclick="toggleSection('sec-category')">
+        <h5>Category</h5>
+        <span class="sb-chevron">▾</span>
+      </div>
+      <div class="sb-body">
+        <div class="fitem {{ 'active' if category=='all' }}" onclick="applyFilter('category','all')">
+          <div class="fcheck"></div>
+          <span class="fitem-label">All</span>
+        </div>
+        <div class="fitem {{ 'active' if category=='Women' }}" onclick="applyFilter('category','Women')">
+          <div class="fcheck"></div>
+          <span class="fitem-label">Women</span>
+          <span class="fitem-count">👗</span>
+        </div>
+        <div class="fitem {{ 'active' if category=='Men' }}" onclick="applyFilter('category','Men')">
+          <div class="fcheck"></div>
+          <span class="fitem-label">Men</span>
+          <span class="fitem-count">👔</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OCCASION -->
+    <div class="sb-section" id="sec-occasion">
+      <div class="sb-section-head" onclick="toggleSection('sec-occasion')">
+        <h5>Occasion</h5>
+        <span class="sb-chevron">▾</span>
+      </div>
+      <div class="sb-body">
+        {% for occ in ['Wedding','Sangeet','Cocktail','Haldi','Reception','Party'] %}
+        <div class="fitem {{ 'active' if occasion==occ }}" onclick="applyFilter('occasion','{{ occ }}')">
+          <div class="fcheck"></div>
+          <span class="fitem-label">{{ occ }}</span>
+        </div>
+        {% endfor %}
+        {% if occasion!='all' %}
+        <div class="fitem" onclick="applyFilter('occasion','all')" style="margin-top:4px">
+          <div class="fcheck" style="border-style:dashed;border-color:#ccc"></div>
+          <span class="fitem-label" style="color:#aaa;font-size:11px">Clear occasion</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- CLOTH TYPE -->
+    <div class="sb-section" id="sec-type">
+      <div class="sb-section-head" onclick="toggleSection('sec-type')">
+        <h5>Outfit Type</h5>
+        <span class="sb-chevron">▾</span>
+      </div>
+      <div class="sb-body">
+        {% for t in ['Lehenga','Saree','Anarkali','Gown','Sherwani','Bandhgala','Kurta','Dress','Jacket','Shirt'] %}
+        <div class="fitem {{ 'active' if cloth_type==t }}" onclick="applyFilter('type','{{ t }}')">
+          <div class="fcheck"></div>
+          <span class="fitem-label">{{ t }}</span>
+        </div>
+        {% endfor %}
+        {% if cloth_type!='all' %}
+        <div class="fitem" onclick="applyFilter('type','all')" style="margin-top:4px">
+          <div class="fcheck" style="border-style:dashed;border-color:#ccc"></div>
+          <span class="fitem-label" style="color:#aaa;font-size:11px">Clear type</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- PRICE RANGE -->
+    <div class="sb-section" id="sec-price">
+      <div class="sb-section-head" onclick="toggleSection('sec-price')">
+        <h5>Price / Day</h5>
+        <span class="sb-chevron">▾</span>
+      </div>
+      <div class="price-chips" id="priceChips">
+        <button class="pchip {{ 'active' if sort=='price_low' }}" onclick="applySort('price_low')">Low → High</button>
+        <button class="pchip {{ 'active' if sort=='price_high' }}" onclick="applySort('price_high')">High → Low</button>
+        <button class="pchip" onclick="applyPriceFilter(0,2000)">Under ₹2,000</button>
+        <button class="pchip" onclick="applyPriceFilter(2000,4000)">₹2,000 – ₹4,000</button>
+        <button class="pchip" onclick="applyPriceFilter(4000,6000)">₹4,000 – ₹6,000</button>
+        <button class="pchip" onclick="applyPriceFilter(6000,99999)">Above ₹6,000</button>
+      </div>
+    </div>
+
+    <!-- SORT -->
+    <div class="sb-section collapsed" id="sec-sort">
+      <div class="sb-section-head" onclick="toggleSection('sec-sort')">
+        <h5>Sort By</h5>
+        <span class="sb-chevron">▾</span>
+      </div>
+      <div class="sb-body">
+        <div class="fitem {{ 'active' if sort=='newest' }}" onclick="applySort('newest')">
+          <div class="fcheck"></div><span class="fitem-label">Newest First</span>
+        </div>
+        <div class="fitem {{ 'active' if sort=='price_low' }}" onclick="applySort('price_low')">
+          <div class="fcheck"></div><span class="fitem-label">Price: Low to High</span>
+        </div>
+        <div class="fitem {{ 'active' if sort=='price_high' }}" onclick="applySort('price_high')">
+          <div class="fcheck"></div><span class="fitem-label">Price: High to Low</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ══════════════════ MAIN CONTENT ══════════════════ -->
+  <div class="main-area">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <button class="btn-filter-toggle" onclick="openSidebar()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="12" y1="18" x2="20" y2="18"/></svg>
+          Filters
+        </button>
+        <span class="result-count">Showing <strong>{{ total }}</strong> item{{ 's' if total!=1 }}</span>
+        <div class="active-tags-bar">
+          {% if category!='all' %}<span class="atag">{{ category }}<button onclick="removeFilter('category')">×</button></span>{% endif %}
+          {% if occasion!='all' %}<span class="atag">{{ occasion }}<button onclick="removeFilter('occasion')">×</button></span>{% endif %}
+          {% if cloth_type!='all' %}<span class="atag">{{ cloth_type }}<button onclick="removeFilter('type')">×</button></span>{% endif %}
+          {% if search %}<span class="atag">"{{ search }}"<button onclick="removeFilter('search')">×</button></span>{% endif %}
+        </div>
+      </div>
+      <div class="sort-wrap">
+        <span>Sort:</span>
+        <select class="sort-sel" onchange="applySort(this.value)">
+          <option value="newest" {{ 'selected' if sort=='newest' }}>Newest</option>
+          <option value="price_low" {{ 'selected' if sort=='price_low' }}>Price ↑</option>
+          <option value="price_high" {{ 'selected' if sort=='price_high' }}>Price ↓</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="pgrid">
+      {% if clothes %}
+        {% for cloth in clothes %}
+        <div class="pcard">
+
+          <div class="pcard-img">
+            <img src="{{ cloth.image }}" alt="{{ cloth.title }}" loading="lazy"
+                 onerror="this.src='https://images.unsplash.com/photo-1610244844573-98bb3bfbe5b3?w=600'"/>
+            <span class="ptag">{{ cloth.occasion }}</span>
+
+            <!-- ❤️ WISHLIST HEART -->
+            <button class="btn-heart" id="heart-{{ cloth.id }}"
+                    onclick="toggleWishlist({{ cloth.id }}, '{{ cloth.title|replace("'","\\'")|e }}', this)"
+                    title="Save to Wishlist">
+              <svg width="15" height="15" fill="none" stroke="#555" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+
+            <!-- ⋮ 3-DOT MENU -->
+            <button class="btn-dots" onclick="toggleDotMenu({{ cloth.id }}, event)" title="More options">
+              <div class="btn-dots-icon"><span></span><span></span><span></span></div>
+            </button>
+
+            <!-- DROPDOWN MENU -->
+            <div class="dot-menu" id="dotmenu-{{ cloth.id }}">
+              <a href="{{ url_for('book', cloth_id=cloth.id) }}" class="dot-item">
+                <em>👁</em> View Details
+              </a>
+              <button class="dot-item" onclick="addToCartAjax({{ cloth.id }}, '{{ cloth.title|replace("'","\\'")|e }}', this.closest('.dot-menu'))">
+                <em>🛒</em> Add to Cart
+              </button>
+              <button class="dot-item" onclick="toggleWishlist({{ cloth.id }}, '{{ cloth.title|replace("'","\\'")|e }}', document.getElementById('heart-{{ cloth.id }}')); this.closest('.dot-menu').classList.remove('open')">
+                <em>❤️</em> <span id="wl-label-{{ cloth.id }}">Save to Wishlist</span>
+              </button>
+              <div class="dot-divider"></div>
+              <a href="{{ url_for('book', cloth_id=cloth.id) }}" class="dot-item">
+                <em>📅</em> Rent Now
+              </a>
+            </div>
+
+            <!-- Quick action bar on hover -->
+            <div class="pcard-quick">
+              <button class="btn-quick cart" onclick="addToCartAjax({{ cloth.id }}, '{{ cloth.title|replace("'","\\'")|e }}', null)">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                Add to Cart
+              </button>
+              <a href="{{ url_for('book', cloth_id=cloth.id) }}" class="btn-quick">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                View
+              </a>
+            </div>
+          </div>
+
+          <div class="pinfo">
+            <div class="ptype">{{ cloth.category }} · {{ cloth.cloth_type }}</div>
+            <div class="pname">{{ cloth.title }}</div>
+            <div class="prow">
+              <div class="pprice">₹{{ cloth.price_per_day|int }}<sub>/day</sub></div>
+              <span class="psize">{{ cloth.size }}</span>
+            </div>
+            <!-- Add to Cart button on card -->
+            <button class="btn-addcart" id="cart-btn-{{ cloth.id }}"
+                    onclick="addToCartAjax({{ cloth.id }}, '{{ cloth.title|replace("'","\\'")|e }}', null)">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              Add to Cart
+            </button>
+          </div>
+
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty-st">
+        <h3>No items found</h3>
+        <p>Try different filters or clear your selection.</p>
+        <a href="{{ url_for('dashboard') }}">Browse All Items</a>
+      </div>
+      {% endif %}
+    </div>
+
+  </div><!-- /main-area -->
+</div><!-- /shop-layout -->
+
+<!-- Wishlist Toast -->
+<div class="wl-toast" id="wlToast"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ═══════════════════════════════════════
+// FILTER NAVIGATION
+// ═══════════════════════════════════════
+const currentParams = {
+  category: '{{ category }}',
+  occasion: '{{ occasion }}',
+  type: '{{ cloth_type }}',
+  search: '{{ search }}',
+  sort: '{{ sort }}'
+};
+
+function buildUrl(overrides) {
+  const p = { ...currentParams, ...overrides };
+  const u = new URLSearchParams();
+  if (p.category && p.category !== 'all') u.set('category', p.category);
+  if (p.occasion && p.occasion !== 'all') u.set('occasion', p.occasion);
+  if (p.type && p.type !== 'all') u.set('type', p.type);
+  if (p.search) u.set('search', p.search);
+  if (p.sort && p.sort !== 'newest') u.set('sort', p.sort);
+  return '/dashboard' + (u.toString() ? '?' + u.toString() : '');
+}
+
+function applyFilter(key, val) {
+  window.location.href = buildUrl({ [key]: val });
+}
+
+function applySort(val) {
+  window.location.href = buildUrl({ sort: val });
+}
+
+function removeFilter(key) {
+  window.location.href = buildUrl({ [key]: 'all' });
+}
+
+function clearAllFilters() {
+  window.location.href = '/dashboard';
+}
+
+function applyPriceFilter(min, max) {
+  // sort by price and note range — simple client-side filter approach
+  const filtered = [...document.querySelectorAll('.pcard')];
+  filtered.forEach(card => {
+    const priceEl = card.querySelector('.pprice');
+    if (!priceEl) return;
+    const price = parseInt(priceEl.textContent.replace(/[^\d]/g, ''));
+    card.style.display = (price >= min && price < max) ? '' : 'none';
+  });
+  // Update count
+  const visible = filtered.filter(c => c.style.display !== 'none').length;
+  const rc = document.querySelector('.result-count');
+  if (rc) rc.innerHTML = 'Showing <strong>' + visible + '</strong> item' + (visible !== 1 ? 's' : '');
+  // Mark chip active
+  document.querySelectorAll('.pchip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// SIDEBAR TOGGLE (mobile)
+// ═══════════════════════════════════════
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('mobile-open');
+  document.getElementById('sbOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sbOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// ═══════════════════════════════════════
+// SECTION COLLAPSE/EXPAND
+// ═══════════════════════════════════════
+function toggleSection(id) {
+  document.getElementById(id).classList.toggle('collapsed');
+}
+
+// ═══════════════════════════════════════
+// 3-DOT MENU
+// ═══════════════════════════════════════
+let openDotMenu = null;
+
+function toggleDotMenu(id, e) {
+  e.stopPropagation();
+  const menu = document.getElementById('dotmenu-' + id);
+  if (openDotMenu && openDotMenu !== menu) openDotMenu.classList.remove('open');
+  menu.classList.toggle('open');
+  openDotMenu = menu.classList.contains('open') ? menu : null;
+}
+
+document.addEventListener('click', () => {
+  if (openDotMenu) { openDotMenu.classList.remove('open'); openDotMenu = null; }
+});
+
+// ═══════════════════════════════════════
+// WISHLIST (localStorage)
+// ═══════════════════════════════════════
+function getWishlist() {
+  try { return JSON.parse(localStorage.getItem('fab_wishlist') || '{}'); } catch(e) { return {}; }
+}
+
+function saveWishlist(wl) {
+  localStorage.setItem('fab_wishlist', JSON.stringify(wl));
+}
+
+function toggleWishlist(id, title, heartBtn) {
+  const wl = getWishlist();
+  const key = String(id);
+  if (wl[key]) {
+    delete wl[key];
+    heartBtn.classList.remove('liked');
+    updateWlLabel(id, false);
+    showToast('❤️ Removed from wishlist');
+  } else {
+    wl[key] = title;
+    heartBtn.classList.add('liked');
+    updateWlLabel(id, true);
+    showToast('❤️ ' + title + ' saved to wishlist!');
+  }
+  saveWishlist(wl);
+  updateWishlistBadge();
+}
+
+function updateWlLabel(id, isLiked) {
+  const lbl = document.getElementById('wl-label-' + id);
+  if (lbl) lbl.textContent = isLiked ? '✓ In Wishlist' : 'Save to Wishlist';
+}
+
+function updateWishlistBadge() {
+  const wl = getWishlist();
+  const badge = document.getElementById('wishlistBadge');
+  if (badge) {
+    const count = Object.keys(wl).length;
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  }
+}
+
+// Init hearts on page load
+(function initHearts() {
+  const wl = getWishlist();
+  Object.keys(wl).forEach(id => {
+    const btn = document.getElementById('heart-' + id);
+    if (btn) btn.classList.add('liked');
+    updateWlLabel(id, true);
+  });
+  updateWishlistBadge();
+})();
+
+// ═══════════════════════════════════════
+// ADD TO CART (AJAX)
+// ═══════════════════════════════════════
+function addToCartAjax(clothId, title, closeMenu) {
+  if (closeMenu) closeMenu.classList.remove('open');
+  const btn = document.getElementById('cart-btn-' + clothId);
+
+  fetch('/cart/add/' + clothId, {
+    method: 'POST',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.success) {
+      if (btn) {
+        btn.classList.add('added');
+        btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Added to Cart';
+        setTimeout(() => {
+          btn.classList.remove('added');
+          btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg> Add to Cart';
+        }, 2500);
+      }
+      // Update navbar cart count
+      const bagCount = document.querySelector('.bag-count');
+      if (bagCount && data.cart_count !== undefined) bagCount.textContent = data.cart_count;
+      showToast('🛒 ' + title + ' added to cart!');
+    } else {
+      showToast('⚠️ ' + (data.message || 'Could not add to cart'));
+    }
+  })
+  .catch(() => showToast('⚠️ Login required'));
+}
+
+// ═══════════════════════════════════════
+// TOAST NOTIFICATION
+// ═══════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('wlToast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+{% endblock %}

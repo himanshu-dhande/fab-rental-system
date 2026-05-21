@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>{% block title %}Fab Rental — Designer Wear on Rent | Jalgaon{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',sans-serif;background:#fff;color:#1a1a1a;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
+img{display:block;max-width:100%}
+
+/* ══ ANNOUNCE BAR ══ */
+.announce{background:#1c1c2e;color:rgba(255,255,255,.8);text-align:center;font-size:12px;letter-spacing:.8px;padding:10px 20px;position:relative;z-index:1001}
+.announce a{color:#c9a84c;font-weight:600;margin-left:4px;border-bottom:1px solid rgba(201,168,76,.4)}
+
+/* ══ NAVBAR ══ */
+.navbar{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid #e8e2d9;display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:72px;transition:box-shadow .3s}
+.navbar.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.08)}
+
+/* Logo */
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.logo-icon{width:42px;height:42px;border:1.5px solid #1a1a1a;display:flex;align-items:center;justify-content:center;font-size:20px}
+.logo-text{display:flex;flex-direction:column;line-height:1.1}
+.logo-text .lt{font-size:8px;letter-spacing:4px;color:#888;text-transform:uppercase}
+.logo-text .lb{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;letter-spacing:3px;color:#1a1a1a}
+.logo-text .lc{font-size:7px;letter-spacing:3px;color:#aaa;text-transform:uppercase}
+
+/* Nav Center */
+.nav-center{display:flex;gap:36px;align-items:center}
+.nav-center>li{position:relative}
+.nav-center>li>a{font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:#333;display:flex;align-items:center;gap:5px;padding:26px 0;transition:color .3s;white-space:nowrap}
+.nav-center>li>a svg{transition:transform .3s}
+.nav-center>li:hover>a{color:#1a1a1a}
+.nav-center>li:hover>a svg{transform:rotate(180deg)}
+.nav-admin-link{color:#c9a84c!important}
+
+/* Mega Dropdown */
+.mega{display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#fff;min-width:600px;padding:0;box-shadow:0 20px 60px rgba(0,0,0,.12);z-index:999;border-top:2px solid #c9a84c}
+.nav-center>li:hover .mega{display:flex}
+.mega-img{width:180px;flex-shrink:0;overflow:hidden}
+.mega-img img{height:260px;width:100%;object-fit:cover;object-position:top;transition:transform .5s}
+.mega-img:hover img{transform:scale(1.04)}
+.mega-body{flex:1;padding:28px 32px;display:flex;gap:40px}
+.mega-col h5{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#999;font-weight:600;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #f0ece6}
+.mega-col a{display:block;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#555;margin-bottom:11px;transition:all .2s;padding-left:0}
+.mega-col a:hover{color:#1a1a1a;padding-left:4px}
+.mega-viewall{position:absolute;bottom:14px;right:20px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#888;border:1px solid #ddd;padding:7px 18px;transition:all .3s}
+.mega-viewall:hover{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+
+/* Nav Right */
+.nav-right{display:flex;align-items:center;gap:16px;flex-shrink:0}
+.nav-user-name{font-size:12px;color:#666;letter-spacing:.5px}
+.nav-icon{font-size:18px;color:#444;cursor:pointer;transition:color .3s;text-decoration:none;background:none;border:none;padding:0}
+.nav-icon:hover{color:#c9a84c}
+.nav-bag{position:relative;display:flex;align-items:center}
+.bag-count{position:absolute;top:-6px;right:-8px;background:#1a1a1a;color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Jost',sans-serif}
+.nav-wl{position:relative;display:flex;align-items:center}
+.wl-badge{position:absolute;top:-6px;right:-8px;background:#e53e3e;color:#fff;font-size:9px;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center;font-family:'Jost',sans-serif}
+.btn-nav-login{padding:9px 22px;background:#1a1a1a;color:#fff!important;font-size:10px;letter-spacing:2px;text-transform:uppercase;transition:background .3s;border:none;cursor:pointer;font-family:'Jost',sans-serif}
+.btn-nav-login:hover{background:#c9a84c}
+.hamburger{display:none;background:none;border:1px solid #e0dbd4;font-size:18px;cursor:pointer;padding:6px 10px;color:#333}
+
+/* ── USER PROFILE DROPDOWN (3-dot menu) ── */
+.nav-user-wrap{position:relative;display:flex;align-items:center}
+.nav-user-btn{display:flex;align-items:center;gap:8px;cursor:pointer;padding:6px 10px;border:1px solid transparent;transition:all .25s;background:none;border:none;font-family:'Jost',sans-serif}
+.nav-user-btn:hover{background:#f5f0eb}
+.nav-user-avatar{width:32px;height:32px;border-radius:50%;background:#1a1a1a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;letter-spacing:.5px;flex-shrink:0}
+.nav-user-info{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2}
+.nav-user-info .uname{font-size:12px;font-weight:600;color:#1a1a1a;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-user-info .urole{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#aaa}
+.nav-dots-icon{display:flex;flex-direction:column;gap:3px;margin-left:4px}
+.nav-dots-icon span{width:3px;height:3px;border-radius:50%;background:#888;display:block}
+
+/* Dropdown panel */
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:220px;background:#fff;border:1px solid #e8e2d9;box-shadow:0 12px 40px rgba(0,0,0,.13);z-index:1100;display:none;flex-direction:column;overflow:hidden;animation:ddIn .2s ease}
+@keyframes ddIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.user-dropdown.open{display:flex}
+.dd-header{padding:14px 16px;background:#f9f6f1;border-bottom:1px solid #ede8e0}
+.dd-header .dd-name{font-size:13px;font-weight:700;color:#1a1a1a}
+.dd-header .dd-email{font-size:11px;color:#aaa;margin-top:2px;word-break:break-all}
+.dd-item{display:flex;align-items:center;gap:11px;padding:11px 16px;font-size:13px;color:#333;cursor:pointer;transition:background .15s;text-decoration:none;border:none;background:none;width:100%;font-family:'Jost',sans-serif;text-align:left}
+.dd-item:hover{background:#f5f0eb;color:#1a1a1a}
+.dd-item em{font-size:16px;font-style:normal;width:20px;text-align:center}
+.dd-divider{height:1px;background:#f0ece6;margin:3px 0}
+.dd-item.logout{color:#e53e3e}
+.dd-item.logout:hover{background:#fff5f5}
+
+/* ══ FLASH ══ */
+.flash-wrap{position:fixed;top:80px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px}
+.flash{display:flex;justify-content:space-between;align-items:center;padding:13px 18px;font-size:13px;min-width:300px;max-width:420px;box-shadow:0 8px 30px rgba(0,0,0,.1)}
+.flash button{background:none;border:none;cursor:pointer;font-size:16px;margin-left:12px;opacity:.6}
+.flash-success{background:#dcfce7;color:#166534;border-left:4px solid #22a84a}
+.flash-danger {background:#fee2e2;color:#991b1b;border-left:4px solid #e53e3e}
+.flash-warning{background:#fef3c7;color:#92400e;border-left:4px solid #f59e0b}
+.flash-info   {background:#dbeafe;color:#1e40af;border-left:4px solid #3b82f6}
+
+/* ══ FOOTER ══ */
+.footer{background:#111118}
+.footer-top{display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr;gap:50px;padding:64px 60px 48px}
+.footer-brand{display:flex;flex-direction:column;gap:16px}
+.footer-logo-box{display:inline-flex;align-items:center;gap:10px}
+.footer-logo-icon{width:40px;height:40px;border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:18px}
+.footer-logo-text .ft{font-size:7px;letter-spacing:4px;color:rgba(255,255,255,.4);display:block}
+.footer-logo-text .fb{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:#fff;letter-spacing:3px;display:block}
+.footer-brand p{font-size:13px;color:rgba(255,255,255,.4);line-height:1.85;max-width:260px}
+.footer-socials{display:flex;gap:12px;margin-top:4px}
+.footer-socials a{width:38px;height:38px;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:16px;transition:all .3s}
+.footer-socials a:hover{border-color:#c9a84c;color:#c9a84c;background:rgba(201,168,76,.08)}
+.footer-col h5{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.35);font-weight:600;margin-bottom:20px}
+.footer-col a,.footer-col p{display:block;font-size:13px;color:rgba(255,255,255,.45);margin-bottom:11px;transition:color .3s}
+.footer-col a:hover{color:#c9a84c}
+.footer-col a.has-icon{display:flex;align-items:center;gap:8px}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding:18px 60px;border-top:1px solid rgba(255,255,255,.06)}
+.footer-copy{font-size:12px;color:rgba(255,255,255,.25)}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:rgba(255,255,255,.25);transition:color .3s}
+.footer-links a:hover{color:rgba(255,255,255,.6)}
+
+/* ══ WHATSAPP FLOAT ══ */
+.wa-float{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 8px 28px rgba(37,211,102,.45);z-index:9998;cursor:pointer;transition:transform .3s;text-decoration:none;animation:wapulse 2.5s ease-in-out infinite}
+.wa-float:hover{transform:scale(1.1)}
+@keyframes wapulse{0%,100%{box-shadow:0 8px 28px rgba(37,211,102,.45)}50%{box-shadow:0 8px 44px rgba(37,211,102,.7)}}
+
+/* ══ MOBILE ══ */
+@media(max-width:960px){
+  .navbar{padding:0 20px}
+  .nav-center{display:none}
+  .hamburger{display:block}
+  .nav-user-name{display:none}
+  .footer-top{grid-template-columns:1fr 1fr;gap:32px;padding:44px 24px 36px}
+  .footer-bottom{flex-direction:column;gap:12px;padding:16px 24px;text-align:center}
+}
+@media(max-width:580px){.footer-top{grid-template-columns:1fr}}
+
+/* Mobile nav open */
+.nav-center.mobile-open{display:flex!important;flex-direction:column;position:fixed;top:72px;left:0;right:0;background:#fff;padding:20px 24px 32px;border-top:2px solid #c9a84c;box-shadow:0 10px 40px rgba(0,0,0,.12);z-index:997;gap:0;max-height:80vh;overflow-y:auto}
+.nav-center.mobile-open>li>a{padding:15px 0;border-bottom:1px solid #f5f0eb;font-size:13px}
+.nav-center.mobile-open .mega{position:static;transform:none;min-width:unset;box-shadow:none;border-top:none;flex-direction:column;display:none!important}
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ANNOUNCE BAR -->
+<div class="announce">
+  Did you know you can make money from your personal wardrobe?
+  <a href="#">Earn with us!</a>
+</div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <!-- Logo -->
+  <a href="{{ url_for('home') }}" class="nav-logo">
+    <div class="logo-icon">👗</div>
+    <div class="logo-text">
+      <span class="lt">The</span>
+      <span class="lb">FAB RENTAL</span>
+      <span class="lc">Jalgaon</span>
+    </div>
+  </a>
+
+  <!-- Center Links -->
+  <ul class="nav-center" id="navCenter">
+    <li>
+      <a href="{{ url_for('dashboard', category='Women') }}">WOMENS WEAR
+        <svg width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="currentColor"/></svg>
+      </a>
+      <div class="mega">
+        <div class="mega-img">
+          <img src="https://images.unsplash.com/photo-1610244844573-98bb3bfbe5b3?w=400&q=80" alt="Women"/>
+        </div>
+        <div class="mega-body">
+          <div class="mega-col">
+            <h5>By Type</h5>
+            <a href="{{ url_for('dashboard', category='Women', type='Lehenga') }}">Lehengas</a>
+            <a href="{{ url_for('dashboard', category='Women', type='Saree') }}">Sarees</a>
+            <a href="{{ url_for('dashboard', category='Women', type='Anarkali') }}">Anarkalis</a>
+            <a href="{{ url_for('dashboard', category='Women', type='Gown') }}">Gowns</a>
+          </div>
+          <div class="mega-col">
+            <h5>By Occasion</h5>
+            <a href="{{ url_for('dashboard', category='Women', occasion='Wedding') }}">Wedding</a>
+            <a href="{{ url_for('dashboard', category='Women', occasion='Sangeet') }}">Sangeet</a>
+            <a href="{{ url_for('dashboard', category='Women', occasion='Cocktail') }}">Cocktail</a>
+            <a href="{{ url_for('dashboard', category='Women', occasion='Haldi') }}">Haldi</a>
+            <a href="{{ url_for('dashboard', category='Women', occasion='Reception') }}">Reception</a>
+          </div>
+        </div>
+        <a href="{{ url_for('dashboard', category='Women') }}" class="mega-viewall">View All →</a>
+      </div>
+    </li>
+    <li>
+      <a href="{{ url_for('dashboard', category='Men') }}">MENS WEAR
+        <svg width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="currentColor"/></svg>
+      </a>
+      <div class="mega">
+        <div class="mega-img">
+          <img src="https://images.unsplash.com/photo-1610694518607-7ea2697a640e?w=400&q=80" alt="Men"/>
+        </div>
+        <div class="mega-body">
+          <div class="mega-col">
+            <h5>By Type</h5>
+            <a href="{{ url_for('dashboard', category='Men', type='Sherwani') }}">Sherwanis</a>
+            <a href="{{ url_for('dashboard', category='Men', type='Bandhgala') }}">Bandhgala</a>
+            <a href="{{ url_for('dashboard', category='Men', type='Kurta') }}">Kurta Sets</a>
+          </div>
+          <div class="mega-col">
+            <h5>By Occasion</h5>
+            <a href="{{ url_for('dashboard', category='Men', occasion='Wedding') }}">Wedding</a>
+            <a href="{{ url_for('dashboard', category='Men', occasion='Sangeet') }}">Sangeet</a>
+            <a href="{{ url_for('dashboard', category='Men', occasion='Reception') }}">Reception</a>
+          </div>
+        </div>
+        <a href="{{ url_for('dashboard', category='Men') }}" class="mega-viewall">View All →</a>
+      </div>
+    </li>
+    <li><a href="{{ url_for('dashboard') }}">COLLECTION</a></li>
+    {% if session.role == 'admin' %}
+    <li><a href="{{ url_for('admin_panel') }}" class="nav-admin-link">⚙ ADMIN</a></li>
+    {% endif %}
+  </ul>
+
+  <!-- Right Icons -->
+  <div class="nav-right">
+    {% if session.user_email %}
+
+      <!-- Wishlist icon -->
+      <div class="nav-wl">
+        <a href="#" class="nav-icon" title="Wishlist" onclick="openWishlistPanel(event)">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </a>
+        <span class="wl-badge" id="wishlistBadge">0</span>
+      </div>
+
+      <!-- Cart icon -->
+      <div class="nav-bag">
+        <a href="{{ url_for('view_cart') }}" class="nav-icon" title="My Cart">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        </a>
+        <span class="bag-count">{{ cart_count }}</span>
+      </div>
+
+      <!-- User profile + 3-dot dropdown -->
+      <div class="nav-user-wrap" id="navUserWrap">
+        <button class="nav-user-btn" onclick="toggleUserDropdown(event)">
+          <div class="nav-user-avatar">{{ session.user_name[0]|upper }}</div>
+          <div class="nav-user-info">
+            <span class="uname">{{ session.user_name.split(' ')[0] }}</span>
+            <span class="urole">{{ session.role }}</span>
+          </div>
+          <div class="nav-dots-icon"><span></span><span></span><span></span></div>
+        </button>
+
+        <div class="user-dropdown" id="userDropdown">
+          <div class="dd-header">
+            <div class="dd-name">{{ session.user_name }}</div>
+            <div class="dd-email">{{ session.user_email }}</div>
+          </div>
+          <a href="{{ url_for('my_bookings') }}" class="dd-item">
+            <em>📋</em> My Bookings
+          </a>
+          <a href="#" class="dd-item" onclick="openWishlistPanel(event)">
+            <em>❤️</em> Saved / Wishlist
+          </a>
+          <a href="{{ url_for('view_cart') }}" class="dd-item">
+            <em>🛒</em> My Cart
+            {% if cart_count %}<span style="margin-left:auto;background:#1a1a1a;color:#fff;font-size:9px;padding:2px 7px;border-radius:10px">{{ cart_count }}</span>{% endif %}
+          </a>
+          {% if session.role == 'admin' %}
+          <div class="dd-divider"></div>
+          <a href="{{ url_for('admin_panel') }}" class="dd-item">
+            <em>⚙️</em> Admin Panel
+          </a>
+          {% endif %}
+          <div class="dd-divider"></div>
+          <a href="{{ url_for('logout') }}" class="dd-item logout">
+            <em>🚪</em> Log Out
+          </a>
+        </div>
+      </div>
+
+    {% else %}
+      <a href="{{ url_for('login') }}" class="nav-icon" title="Account">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/></svg>
+      </a>
+      <a href="{{ url_for('login') }}" class="btn-nav-login">Login</a>
+    {% endif %}
+
+    <button class="hamburger" onclick="toggleNav()">☰</button>
+  </div>
+
+  <!-- WISHLIST SIDE PANEL -->
+  <div id="wlPanel" style="display:none;position:fixed;top:0;right:0;bottom:0;width:320px;background:#fff;z-index:1200;box-shadow:-6px 0 30px rgba(0,0,0,.15);flex-direction:column;overflow:hidden">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px;background:#1a1a1a;flex-shrink:0">
+      <span style="color:#fff;font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase">❤️ Wishlist</span>
+      <button onclick="closeWishlistPanel()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;opacity:.7">×</button>
+    </div>
+    <div id="wlPanelBody" style="flex:1;overflow-y:auto;padding:16px"></div>
+  </div>
+  <div id="wlPanelOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1199" onclick="closeWishlistPanel()"></div>
+</nav>
+
+<!-- FLASH -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-wrap">
+  {% for cat,msg in messages %}
+  <div class="flash flash-{{ cat }}"><span>{{ msg }}</span><button onclick="this.parentElement.remove()">✕</button></div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<main>{% block content %}{% endblock %}</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="footer-logo-box">
+        <div class="footer-logo-icon">👗</div>
+        <div class="footer-logo-text">
+          <span class="ft">The</span>
+          <span class="fb">FAB RENTAL</span>
+        </div>
+      </div>
+      <p>Jalgaon's premier luxury designer wear on rent. Premium Sarees, Sherwanis &amp; Lehengas for every occasion. Wear, stun, return.</p>
+      <div class="footer-socials">
+        <a href="https://www.instagram.com/strvlight_.2005" target="_blank" title="Instagram @strvlight_.2005">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://wa.me/919529770750" target="_blank" title="WhatsApp">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h5>Browse</h5>
+      <a href="{{ url_for('dashboard', category='Women') }}">Womens Collection</a>
+      <a href="{{ url_for('dashboard', category='Men') }}">Mens Collection</a>
+      <a href="{{ url_for('dashboard', occasion='Wedding') }}">Wedding</a>
+      <a href="{{ url_for('dashboard', occasion='Cocktail') }}">Cocktail</a>
+      <a href="{{ url_for('dashboard', occasion='Sangeet') }}">Sangeet</a>
+    </div>
+
+    <div class="footer-col">
+      <h5>Support</h5>
+      <a href="#">About Us</a>
+      <a href="#">FAQs</a>
+      <a href="#">Cancellation Policy</a>
+      <a href="#">Return Policy</a>
+      <a href="#">T&amp;C</a>
+    </div>
+
+    <div class="footer-col">
+      <h5>Contact Us</h5>
+      <a href="tel:+919529770750" class="has-icon">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        +91 9529770750
+      </a>
+      <a href="https://www.instagram.com/strvlight_.2005" target="_blank" class="has-icon">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        @strvlight_.2005
+      </a>
+      <a href="https://wa.me/919529770750" target="_blank" class="has-icon">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp Us
+      </a>
+      <p style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.25)">📍 Jalgaon, Maharashtra</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 Fab Rental Jalgaon. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">T&amp;C</a>
+      <a href="#">Cookie Policy</a>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/919529770750" class="wa-float" target="_blank" title="Chat on WhatsApp">
+  <svg width="26" height="26" fill="#fff" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+function toggleNav(){document.getElementById('navCenter').classList.toggle('mobile-open')}
+window.addEventListener('scroll',()=>{document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>40)})
+setTimeout(()=>{document.querySelectorAll('.flash').forEach(el=>{el.style.transition='opacity .5s,transform .5s';el.style.opacity='0';el.style.transform='translateX(20px)';setTimeout(()=>el.remove(),500)})},4500)
+// Scroll reveal
+const sr=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.style.opacity='1';x.target.style.transform='translateY(0)';sr.unobserve(x.target)}}),{threshold:.1})
+document.querySelectorAll('.reveal').forEach(el=>{el.style.opacity='0';el.style.transform='translateY(28px)';el.style.transition='opacity .7s ease,transform .7s ease';sr.observe(el)})
+
+// ── USER PROFILE DROPDOWN ──
+function toggleUserDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const wrap = document.getElementById('navUserWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    const dd = document.getElementById('userDropdown');
+    if (dd) dd.classList.remove('open');
+  }
+});
+
+// ── WISHLIST PANEL ──
+function getWishlist(){try{return JSON.parse(localStorage.getItem('fab_wishlist')||'{}')}catch(e){return {}}}
+
+function openWishlistPanel(e) {
+  if (e) e.preventDefault();
+  const panel = document.getElementById('wlPanel');
+  const overlay = document.getElementById('wlPanelOverlay');
+  if (!panel) return;
+  renderWishlistPanel();
+  panel.style.display = 'flex';
+  overlay.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  // close user dropdown
+  const dd = document.getElementById('userDropdown');
+  if (dd) dd.classList.remove('open');
+}
+
+function closeWishlistPanel() {
+  document.getElementById('wlPanel').style.display = 'none';
+  document.getElementById('wlPanelOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function renderWishlistPanel() {
+  const wl = getWishlist();
+  const body = document.getElementById('wlPanelBody');
+  const keys = Object.keys(wl);
+  if (keys.length === 0) {
+    body.innerHTML = '<div style="text-align:center;padding:60px 20px;color:#aaa"><div style="font-size:40px;margin-bottom:12px">❤️</div><p style="font-size:13px">No saved items yet.<br>Tap ❤️ on any outfit to save it!</p></div>';
+    return;
+  }
+  body.innerHTML = keys.map(id => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0ece6">
+      <div style="flex:1;font-size:13px;color:#1a1a1a;font-family:'Cormorant Garamond',serif;font-size:16px">${wl[id]}</div>
+      <a href="/book/${id}" style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#1a1a1a;border:1px solid #1a1a1a;padding:5px 12px;text-decoration:none;transition:all .2s;white-space:nowrap" onmouseover="this.style.background='#1a1a1a';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='#1a1a1a'">Rent</a>
+      <button onclick="removeFromWishlist('${id}')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;padding:0" title="Remove">×</button>
+    </div>
+  `).join('');
+}
+
+function removeFromWishlist(id) {
+  const wl = getWishlist();
+  delete wl[id];
+  localStorage.setItem('fab_wishlist', JSON.stringify(wl));
+  renderWishlistPanel();
+  updateWishlistBadge();
+  // also un-heart the card if on dashboard
+  const btn = document.getElementById('heart-' + id);
+  if (btn) btn.classList.remove('liked');
+}
+
+function updateWishlistBadge() {
+  const wl = getWishlist();
+  const badge = document.getElementById('wishlistBadge');
+  if (badge) {
+    const count = Object.keys(wl).length;
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+  }
+}
+
+// Init badge on load
+updateWishlistBadge();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

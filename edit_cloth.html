@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block title %}Edit Cloth — Fab Rental{% endblock %}
+
+{% block extra_css %}
+<style>
+.form-page { max-width:760px; margin:60px auto; padding:0 24px 80px; }
+.form-page h1 { font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:700; color:#1a1a1a; margin-bottom:8px; }
+.form-page .sub { font-size:13px; color:#888; margin-bottom:40px; }
+.form-card { background:#fff; border:1px solid #ede8e1; padding:40px; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.form-group { margin-bottom:22px; }
+.form-group label { display:block; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#555; font-weight:600; margin-bottom:8px; }
+.form-group input, .form-group select, .form-group textarea { width:100%; padding:12px 14px; border:1px solid #e0dbd4; font-size:13px; font-family:'Montserrat',sans-serif; color:#333; outline:none; transition:border .3s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:#c9a84c; }
+.form-group textarea { resize:vertical; min-height:90px; }
+.btn-submit { width:100%; padding:16px; background:#1a1a1a; color:#fff; font-size:12px; font-weight:600; letter-spacing:2.5px; text-transform:uppercase; border:none; cursor:pointer; margin-top:10px; transition:background .3s; }
+.btn-submit:hover { background:#e6b84a; color:#1a1a1a; }
+.cur-img { width:100%; max-height:200px; object-fit:cover; border:1px solid #e0dbd4; margin-bottom:12px; }
+.back-link { text-align:center; margin-top:16px; font-size:12px; color:#888; }
+.back-link a { color:#1a1a1a; font-weight:500; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-page">
+  <h1>Edit Cloth</h1>
+  <p class="sub">Update details for "{{ cloth.title }}"</p>
+
+  <div class="form-card">
+    <img src="{{ cloth.image }}" alt="{{ cloth.title }}" class="cur-img"/>
+
+    <form method="POST" action="{{ url_for('edit_cloth', cloth_id=cloth.id) }}">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" name="title" value="{{ cloth.title }}" required/>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select name="category">
+            <option value="Women" {{ 'selected' if cloth.category=='Women' }}>Women</option>
+            <option value="Men"   {{ 'selected' if cloth.category=='Men' }}>Men</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <input type="text" name="cloth_type" value="{{ cloth.cloth_type }}"/>
+        </div>
+        <div class="form-group">
+          <label>Size</label>
+          <select name="size">
+            {% for s in ['XS','S','M','L','XL','XXL'] %}
+            <option value="{{ s }}" {{ 'selected' if cloth.size==s }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Price Per Day (₹)</label>
+          <input type="number" name="price" value="{{ cloth.price_per_day }}" min="1" step="0.01"/>
+        </div>
+        <div class="form-group">
+          <label>Occasion</label>
+          <select name="occasion">
+            {% for occ in ['Wedding','Sangeet','Cocktail','Haldi','Reception','Party'] %}
+            <option {{ 'selected' if cloth.occasion==occ }}>{{ occ }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea name="description">{{ cloth.description }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>New Image URL (leave blank to keep current)</label>
+        <input type="url" name="image_url" placeholder="https://..."/>
+      </div>
+
+      <button type="submit" class="btn-submit">Save Changes →</button>
+    </form>
+  </div>
+  <p class="back-link"><a href="{{ url_for('admin_panel') }}">← Back to Admin</a></p>
+</div>
+{% endblock %}

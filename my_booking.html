@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}My Bookings — Fab Rental{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-header { background:linear-gradient(135deg,#1e2035,#2d2035); padding:50px 60px 36px; }
+.page-header h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(28px,3.5vw,48px); font-weight:700; color:#fff; }
+.page-header p { color:rgba(255,255,255,.55); font-size:13px; margin-top:6px; }
+
+.bookings-section { padding:50px 60px 80px; }
+
+.bookings-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:24px; }
+
+.booking-card { border:1px solid #f0ece6; background:#fff; overflow:hidden; transition:box-shadow .3s; }
+.booking-card:hover { box-shadow:0 10px 40px rgba(0,0,0,.08); }
+.booking-card-img { height:200px; overflow:hidden; position:relative; }
+.booking-card-img img { width:100%; height:100%; object-fit:cover; }
+.booking-status { position:absolute; top:12px; right:12px; font-size:9px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; padding:5px 12px; }
+.status-confirmed { background:#22a84a; color:#fff; }
+.status-cancelled { background:#e53e3e; color:#fff; }
+
+.booking-info { padding:20px 22px; }
+.booking-title { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; color:#1a1a1a; margin-bottom:10px; }
+.booking-meta { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+.b-meta-item { font-size:11px; color:#888; }
+.b-meta-item strong { display:block; color:#333; font-size:13px; margin-top:2px; }
+.b-total { font-size:18px; font-weight:700; color:#1a1a1a; border-top:1px solid #f0ece6; padding-top:14px; }
+.b-total span { font-size:12px; color:#888; font-weight:400; }
+.btn-cancel { display:block; text-align:center; padding:11px; background:#fff; border:1px solid #e53e3e; color:#e53e3e; font-size:10px; letter-spacing:2px; text-transform:uppercase; text-decoration:none; margin-top:14px; transition:all .3s; }
+.btn-cancel:hover { background:#e53e3e; color:#fff; }
+
+.empty-state { text-align:center; padding:80px 20px; }
+.empty-state h3 { font-family:'Cormorant Garamond',serif; font-size:36px; color:#888; }
+.empty-state p { color:#aaa; margin:12px 0 28px; font-size:13px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>My Bookings</h1>
+  <p>{{ bookings|length }} booking{{ 's' if bookings|length != 1 }}</p>
+</div>
+
+<div class="bookings-section">
+  {% if bookings %}
+  <div class="bookings-grid">
+    {% for b in bookings %}
+    <div class="booking-card">
+      <div class="booking-card-img">
+        <img src="{{ b.cloth.image }}" alt="{{ b.cloth.title }}"/>
+        <span class="booking-status status-{{ b.status|lower }}">{{ b.status }}</span>
+      </div>
+      <div class="booking-info">
+        <div class="booking-title">{{ b.cloth.title }}</div>
+        <div class="booking-meta">
+          <div class="b-meta-item">
+            Days Rented
+            <strong>{{ b.days }} days</strong>
+          </div>
+          <div class="b-meta-item">
+            Booked On
+            <strong>{{ b.created_at.strftime('%d %b %Y') }}</strong>
+          </div>
+          <div class="b-meta-item">
+            Category
+            <strong>{{ b.cloth.category }}</strong>
+          </div>
+          <div class="b-meta-item">
+            Occasion
+            <strong>{{ b.cloth.occasion }}</strong>
+          </div>
+        </div>
+        <div class="b-total">
+          ₹{{ b.total_price|int }}
+          <span>total</span>
+        </div>
+        {% if b.status == 'Confirmed' %}
+        <a href="{{ url_for('cancel_booking', booking_id=b.id) }}"
+           class="btn-cancel"
+           onclick="return confirm('Cancel this booking?')">Cancel Booking</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <h3>No bookings yet</h3>
+    <p>Browse our collection and rent your favourite outfit!</p>
+    <a href="{{ url_for('dashboard') }}" style="display:inline-block; padding:14px 32px; background:#1a1a1a; color:#fff; font-size:11px; letter-spacing:2px; text-transform:uppercase; text-decoration:none;">Browse Collection</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

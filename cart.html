@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}My Cart — Fab Rental{% endblock %}
+{% block extra_css %}
+<style>
+.cart-page{max-width:1100px;margin:100px auto 80px;padding:0 24px}
+.cart-page h1{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,4vw,52px);font-weight:600;color:#1a1a1a;margin-bottom:8px}
+.cart-sub{font-size:13px;color:#aaa;letter-spacing:.5px;margin-bottom:44px}
+.cart-layout{display:grid;grid-template-columns:1fr 340px;gap:40px;align-items:start}
+@media(max-width:900px){.cart-layout{grid-template-columns:1fr}}
+
+/* Cart items */
+.cart-items{}
+.cart-empty{text-align:center;padding:80px 20px;color:#aaa}
+.cart-empty svg{margin-bottom:16px;opacity:.3}
+.cart-empty p{font-size:14px;margin-bottom:24px}
+.cart-item{display:grid;grid-template-columns:100px 1fr auto;gap:20px;padding:24px 0;border-bottom:1px solid #ede8e0;align-items:start}
+.cart-item:last-child{border-bottom:none}
+.cart-item-img{width:100px;height:130px;object-fit:cover;background:#f0ece6}
+.cart-item-info{}
+.cart-item-title{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.cart-item-meta{font-size:12px;color:#aaa;letter-spacing:.5px;margin-bottom:12px}
+.cart-item-days{display:flex;align-items:center;gap:10px;font-size:13px;color:#555;margin-bottom:10px}
+.cart-item-days strong{color:#1a1a1a;font-size:15px}
+.cart-item-price{font-size:16px;font-weight:600;color:#c9a84c}
+.cart-item-remove{color:#ccc;cursor:pointer;text-decoration:none;transition:color .2s;align-self:start;padding-top:4px}
+.cart-item-remove:hover{color:#e74c3c}
+
+/* Order Summary */
+.order-summary{background:#f9f7f4;padding:32px;border:1px solid #ede8e0;position:sticky;top:100px}
+.summary-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#1a1a1a;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #ede8e0}
+.summary-row{display:flex;justify-content:space-between;font-size:14px;color:#666;margin-bottom:12px}
+.summary-row.total{font-size:18px;font-weight:700;color:#1a1a1a;border-top:1px solid #ede8e0;padding-top:16px;margin-top:8px}
+.summary-row.total span:last-child{color:#c9a84c}
+.btn-checkout{width:100%;padding:18px;background:#1a1a1a;color:#fff;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;border:none;cursor:pointer;transition:background .3s;font-family:'Jost',sans-serif;margin-top:20px}
+.btn-checkout:hover{background:#c9a84c}
+.btn-continue{display:block;text-align:center;margin-top:12px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#aaa;text-decoration:none;transition:color .2s}
+.btn-continue:hover{color:#1a1a1a}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-page">
+  <h1>My Cart</h1>
+  <p class="cart-sub">{{ items|length }} item{{ 's' if items|length != 1 }} in your cart</p>
+
+  <div class="cart-layout">
+
+    <!-- LEFT: Cart Items -->
+    <div class="cart-items">
+      {% if not items %}
+      <div class="cart-empty">
+        <svg width="64" height="64" fill="none" stroke="#aaa" stroke-width="1.5" viewBox="0 0 24 24"><path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <p>Your cart is empty. Start exploring our collection!</p>
+        <a href="{{ url_for('dashboard') }}" style="display:inline-block;padding:14px 36px;background:#1a1a1a;color:#fff;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;text-decoration:none;">BROWSE COLLECTION</a>
+      </div>
+      {% else %}
+      {% for item in items %}
+      <div class="cart-item">
+        <img src="{{ item.image }}" alt="{{ item.title }}" class="cart-item-img">
+        <div class="cart-item-info">
+          <div class="cart-item-title">{{ item.title }}</div>
+          <div class="cart-item-meta">{{ item.category }} · {{ item.cloth_type }} · Size {{ item.size }}</div>
+          <div class="cart-item-days">
+            Rental Duration: <strong>{{ item.days }} day{{ 's' if item.days != 1 }}</strong>
+          </div>
+          <div class="cart-item-price">₹{{ '{:,.0f}'.format(item.subtotal) }}</div>
+        </div>
+        <a href="{{ url_for('cart_remove', cloth_id=item.cloth_id) }}" class="cart-item-remove" title="Remove">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </a>
+      </div>
+      {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- RIGHT: Order Summary -->
+    <div class="order-summary">
+      <div class="summary-title">Order Summary</div>
+
+      {% for item in items %}
+      <div class="summary-row">
+        <span>{{ item.title[:24] }}{% if item.title|length > 24 %}…{% endif %} ({{ item.days }}d)</span>
+        <span>₹{{ '{:,.0f}'.format(item.subtotal) }}</span>
+      </div>
+      {% endfor %}
+
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>₹{{ '{:,.0f}'.format(grand_total) }}</span>
+      </div>
+
+      {% if items %}
+      <form method="POST" action="{{ url_for('checkout_cart') }}">
+        <button type="submit" class="btn-checkout">CONFIRM BOOKING</button>
+      </form>
+      {% else %}
+      <button class="btn-checkout" disabled style="opacity:.4;cursor:not-allowed">CONFIRM BOOKING</button>
+      {% endif %}
+
+      <a href="{{ url_for('dashboard') }}" class="btn-continue">← Continue Shopping</a>
+      {% if items %}
+      <a href="{{ url_for('cart_clear') }}" class="btn-continue" style="color:#e74c3c;margin-top:6px" onclick="return confirm('Cart clear karein?')">🗑 Clear Cart</a>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
